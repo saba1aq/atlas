@@ -1,0 +1,203 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #f6f6f4;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0efeb;
+  --color-border: #e2e1dc;
+  --color-fg: #1b1b1a;
+  --color-muted: #6f6e68;
+  --color-accent: #2f5bea;
+  --color-accent-fg: #ffffff;
+  --color-danger: #c8362b;
+  --color-success: #1f7a4d;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Motion tokens. Built-in easings are too weak; these have punch. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-press: 160ms;
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-drawer: 300ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #111210;
+    --color-surface: #1a1b19;
+    --color-surface-2: #22231f;
+    --color-border: #2e2f2a;
+    --color-fg: #ecebe6;
+    --color-muted: #9a998f;
+    --color-accent: #6d8dff;
+    --color-accent-fg: #0b0f1f;
+    --color-danger: #ef6b60;
+    --color-success: #4fc082;
+  }
+}
+:root[data-theme="dark"] {
+  --color-bg: #111210;
+  --color-surface: #1a1b19;
+  --color-surface-2: #22231f;
+  --color-border: #2e2f2a;
+  --color-fg: #ecebe6;
+  --color-muted: #9a998f;
+  --color-accent: #6d8dff;
+  --color-accent-fg: #0b0f1f;
+  --color-danger: #ef6b60;
+  --color-success: #4fc082;
+}
+
+html, body, #root { height: 100%; }
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+* { border-color: var(--color-border); }
+input, select, textarea, button { font: inherit; color: inherit; }
+::placeholder { color: var(--color-muted); opacity: .8; }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 4px; }
+
+/* ---------- fields ---------- */
+.field {
+  @apply w-full rounded-md border bg-surface px-2.5 py-1.5 outline-none;
+  transition: box-shadow var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+.field:focus, .field:focus-within {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-color: var(--color-accent);
+  outline: none;
+}
+.field:disabled { background: var(--color-surface-2); color: var(--color-muted); }
+.field.invalid { border-color: var(--color-danger); }
+.field.invalid:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 22%, transparent); }
+
+/* ---------- pressables ---------- */
+/* Every pressable scales down on press: instant confirmation that the UI heard the click. */
+.pressable {
+  transition: transform var(--dur-press) var(--ease-out), background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease, border-color var(--dur-fast) ease, opacity var(--dur-fast) ease;
+}
+.pressable:active:not(:disabled) { transform: scale(0.97); }
+.pressable-sm:active:not(:disabled) { transform: scale(0.95); }
+
+/* Hover only on devices that actually hover; touch taps otherwise leave stuck states. */
+@media (hover: hover) and (pointer: fine) {
+  .hoverable:hover { background-color: var(--color-surface-2); }
+  .row-hover:hover { background-color: color-mix(in srgb, var(--color-surface-2) 70%, transparent); }
+}
+
+/* ---------- entrances (@starting-style: no mount hacks) ---------- */
+/* Popovers scale from their trigger, never from center. Fast, ease-out, under 200ms. */
+.popover {
+  transform-origin: top left;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  @starting-style { opacity: 0; transform: translateY(-4px) scale(0.97); }
+}
+
+/* Modals are the exception: centered origin. Slightly longer, still crisp. */
+.modal-overlay {
+  opacity: 1;
+  transition: opacity var(--dur-base) ease;
+  @starting-style { opacity: 0; }
+}
+.modal {
+  transform-origin: center;
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  @starting-style { opacity: 0; transform: scale(0.96); }
+}
+
+/* Side panel slides in from where it lives (the right edge), content stays interactive. */
+.panel-enter {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  @starting-style { opacity: 0; transform: translateX(12px); }
+}
+
+/* Page-level content: a short settle, not a show. */
+.page-enter {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  @starting-style { opacity: 0; transform: translateY(6px); }
+}
+
+/* Rare screen (login) can afford a little more presence. */
+.card-enter {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 260ms var(--ease-out), transform 260ms var(--ease-out);
+  @starting-style { opacity: 0; transform: translateY(10px) scale(0.985); }
+}
+
+/* Stagger for the overview grid (seen rarely). Keyframes are fine here: nothing interrupts it. */
+.stagger > * {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: stagger-in 320ms var(--ease-out) forwards;
+}
+.stagger > :nth-child(1) { animation-delay: 0ms; }
+.stagger > :nth-child(2) { animation-delay: 40ms; }
+.stagger > :nth-child(3) { animation-delay: 80ms; }
+.stagger > :nth-child(4) { animation-delay: 120ms; }
+.stagger > :nth-child(5) { animation-delay: 160ms; }
+.stagger > :nth-child(6) { animation-delay: 200ms; }
+.stagger > :nth-child(n + 7) { animation-delay: 240ms; }
+@keyframes stagger-in { to { opacity: 1; transform: translateY(0); } }
+
+/* ---------- toasts (Sonner-style: transitions, not keyframes; exit faster than enter) ---------- */
+.toast {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 400ms ease, transform 400ms ease;
+  @starting-style { opacity: 0; transform: translateY(100%) scale(0.98); }
+}
+.toast[data-leaving="true"] {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+
+/* ---------- mobile sidebar drawer (iOS curve, always mounted so it is interruptible) ---------- */
+.drawer {
+  transition: transform var(--dur-drawer) var(--ease-drawer);
+}
+.drawer[data-open="false"] { transform: translateX(-100%); }
+@media (min-width: 48rem) { .drawer[data-open="false"] { transform: none; } }
+.drawer-overlay {
+  transition: opacity var(--dur-base) ease, visibility 0s linear var(--dur-base);
+  opacity: 0; visibility: hidden;
+}
+.drawer-overlay[data-open="true"] { opacity: 1; visibility: visible; transition-delay: 0s; }
+
+/* ---------- loading ---------- */
+/* A faster spinner reads as a faster app. */
+.spin { animation: spin 700ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.fetching { transition: opacity var(--dur-fast) ease; }
+
+/* ---------- tables ---------- */
+.row-selected { background-color: color-mix(in srgb, var(--color-accent) 8%, transparent); }
+tbody tr { transition: background-color var(--dur-fast) ease; }
+
+/* Reduced motion: keep opacity/color cues, remove movement. */
+@media (prefers-reduced-motion: reduce) {
+  .popover, .modal, .panel-enter, .page-enter, .card-enter, .toast, .drawer {
+    transition-property: opacity, background-color, color, border-color;
+  }
+  .popover, .modal, .panel-enter, .page-enter, .card-enter, .toast { transform: none !important; }
+  .stagger > * { animation-duration: 1ms; }
+  .pressable:active:not(:disabled) { transform: none; }
+}

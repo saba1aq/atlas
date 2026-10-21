@@ -1,0 +1,75 @@
+[project]
+name = "atlas"
+version = "0.1.0a0"
+description = "Framework-agnostic admin panel for FastAPI/Starlette over SQLAlchemy and Tortoise ORM"
+readme = "README.md"
+authors = [
+    { name = "z.nurym", email = "z.nurym@mycar.kz" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "anyio>=4.0",
+]
+
+[project.optional-dependencies]
+sqlalchemy = [
+    "sqlalchemy>=2.0",
+]
+tortoise = [
+    "tortoise-orm>=0.21",
+]
+starlette = [
+    "python-multipart>=0.0.9",
+    "starlette>=0.37",
+]
+fastapi = [
+    "fastapi>=0.110",
+]
+mongo = [
+    "pymongo>=4.9",
+]
+beanie = [
+    "beanie>=1.26",
+]
+
+[build-system]
+requires = ["uv_build>=0.11.27,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "aiosqlite>=0.22.1",
+    "beanie>=2.2.0",
+    "fastapi>=0.156.8",
+    "httpx>=0.28.1",
+    "mongomock>=4.3.0",
+    "motor>=3.7.1",
+    "mypy>=2.4.0",
+    "pymongo>=4.19.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "python-multipart>=0.0.32",
+    "ruff>=0.17.1",
+    "sqlalchemy[asyncio]>=2.0",
+    "tortoise-orm>=1.1.9",
+    "uvicorn>=0.54.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
